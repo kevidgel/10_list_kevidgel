@@ -30,7 +30,7 @@ void print_food(struct food *ood)
 
 void print_list(struct food *ood)
 {
-  if (ood != NULL)
+  if (ood != NULL) // some issue here, didn't know how to check if ood was not initialized
   {
     print_food(ood);
     print_list(ood->next);
@@ -51,13 +51,52 @@ struct food * insert_front(struct food *ood, char *n, int r, double p)
 
 struct food * free_list(struct food *ood)
 {
+  free_list_help(ood);
+  ood = NULL;
+  return ood;
+}
+
+struct food * free_list_help(struct food *ood)
+{
   if (ood == NULL)
   {
-    return;
+    return NULL;
   }
   else
   {
-    free_list(ood->next);
+    ood->next = free_list_help(ood->next);
+    printf("freeing ");
+    print_food(ood);
     free(ood);
+    return NULL;
+  }
+}
+
+struct food * remove_food(struct food *front, char *n, int r, double p)
+{
+  if (front->rating == r && front->price == p && strcmp(n, front->name) == 0)
+  {
+    struct food *temp = front->next;
+    free(front);
+    return temp;
+  }
+  else
+  {
+    remove_food_help(front->next, n, r, p);
+    return front;
+  }
+}
+
+void remove_food_help(struct food *front, char *n, int r, double p)
+{
+  if (front->next->rating == r && front->next->price == p && strcmp(n, front->next->name) == 0)
+  {
+    struct food *temp = front->next->next;
+    free(front->next);
+    front->next = temp;
+  }
+  else
+  {
+    remove_food_help(front->next, n, r, p);
   }
 }
